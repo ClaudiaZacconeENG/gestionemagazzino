@@ -67,4 +67,4 @@ esercizio della giornata 1.
 
 | Giornata | Consegna |
 |---|---|
-| M6 · G1 — Feature authoring e test generation | [docs/corso/M6-G1.md](docs/corso/M6-G1.md) |
+| M6 · G1 — Feature authoring e test generation | [docs/corso/M6-G1.md](docs/corso/M6-G1.md) · soluzione: branch `soluzione/m6-g1`, tag `m6-g1-end` |
