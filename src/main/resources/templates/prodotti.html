@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:replace="~{fragments :: head('Prodotti')}"></head>
+<body>
+<header th:replace="~{fragments :: menu}"></header>
+<main>
+    <h1>Prodotti</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Codice</th>
+            <th>Nome</th>
+            <th class="num">Prezzo</th>
+            <th class="num">Disponibili</th>
+            <th class="num">Scorta minima</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${prodotti}"
+            th:classappend="${p.disponibili == 0} ? 'esaurito'">
+            <td><code th:text="${p.codice}">VIT-M6-30</code></td>
+            <td th:text="${p.nome}">Viti</td>
+            <td class="num" th:text="${#numbers.formatDecimal(p.prezzo, 1, 'POINT', 2, 'COMMA')} + ' €'">6,90 €</td>
+            <td class="num" th:text="${p.disponibili}">240</td>
+            <td class="num" th:text="${p.scortaMinima}">50</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

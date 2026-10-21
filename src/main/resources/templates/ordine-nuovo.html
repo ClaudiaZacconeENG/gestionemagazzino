@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:replace="~{fragments :: head('Nuovo ordine')}"></head>
+<body>
+<header th:replace="~{fragments :: menu}"></header>
+<main>
+    <h1>Nuovo ordine</h1>
+    <div th:replace="~{fragments :: avvisi}"></div>
+    <form th:action="@{/ordini}" th:object="${form}" method="post">
+        <label>Cliente
+            <input type="text" th:field="*{cliente}" placeholder="es. Ferramenta Bianchi">
+        </label>
+        <table>
+            <thead>
+            <tr>
+                <th>Prodotto</th>
+                <th class="num">Quantità</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="riga, st : *{righe}">
+                <td>
+                    <select th:field="*{righe[__${st.index}__].codice}">
+                        <option value="">—</option>
+                        <option th:each="p : ${prodotti}" th:value="${p.codice}"
+                                th:text="${p.nome} + ' (' + ${p.disponibili} + ' disponibili)'">Prodotto</option>
+                    </select>
+                </td>
+                <td class="num">
+                    <input type="number" min="1" th:field="*{righe[__${st.index}__].quantita}">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <button type="submit" class="primario">Conferma ordine</button>
+    </form>
+</main>
+</body>
+</html>

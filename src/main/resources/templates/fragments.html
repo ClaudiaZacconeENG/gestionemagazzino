@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:fragment="head(titolo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titolo} + ' · Magazzino'">Magazzino</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header th:fragment="menu">
+    <span class="logo">Magazzino &amp; Ordini</span>
+    <nav>
+        <a th:href="@{/prodotti}">Prodotti</a>
+        <a th:href="@{/ordini}">Ordini</a>
+        <a th:href="@{/ordini/nuovo}" class="primario">Nuovo ordine</a>
+    </nav>
+</header>
+<div th:fragment="avvisi">
+    <p class="avviso errore" th:if="${errore}" th:text="${errore}">Errore</p>
+    <p class="avviso ok" th:if="${messaggio}" th:text="${messaggio}">Messaggio</p>
+</div>
+</body>
+</html>
