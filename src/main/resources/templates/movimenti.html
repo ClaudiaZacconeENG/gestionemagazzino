@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:replace="~{fragments :: head('Movimenti')}"></head>
+<body>
+<header th:replace="~{fragments :: menu}"></header>
+<main>
+    <h1>Movimenti di magazzino</h1>
+    <div th:replace="~{fragments :: avvisi}"></div>
+    <p th:if="${#lists.isEmpty(movimenti)}">Ancora nessun movimento.</p>
+    <table th:unless="${#lists.isEmpty(movimenti)}">
+        <thead>
+        <tr>
+            <th>Data</th>
+            <th>Prodotto</th>
+            <th>Tipo</th>
+            <th class="num">Pezzi</th>
+            <th>Ordine</th>
+            <th>Nota</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${movimenti}">
+            <td th:text="${#temporals.format(m.creatoIl, 'dd/MM/yyyy HH:mm')}">27/10/2026 10:00</td>
+            <td th:text="${m.prodotto.nome}">Viti</td>
+            <td th:text="${m.tipo}">CARICO</td>
+            <td class="num" th:text="${m.quantita}">100</td>
+            <td><a th:if="${m.ordineId}" th:href="@{/ordini/{id}(id=${m.ordineId})}" th:text="${m.ordineId}">1</a></td>
+            <td th:text="${m.nota}">Consegna fornitore</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

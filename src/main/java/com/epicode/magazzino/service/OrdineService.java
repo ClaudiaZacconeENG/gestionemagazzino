@@ -1,9 +1,12 @@
 package com.epicode.magazzino.service;
 
+import com.epicode.magazzino.model.MovimentoMagazzino;
 import com.epicode.magazzino.model.Ordine;
 import com.epicode.magazzino.model.Prodotto;
 import com.epicode.magazzino.model.RichiestaNonValidaException;
+import com.epicode.magazzino.model.RigaOrdine;
 import com.epicode.magazzino.model.RisorsaNonTrovataException;
+import com.epicode.magazzino.repository.MovimentoRepository;
 import com.epicode.magazzino.repository.OrdineRepository;
 import com.epicode.magazzino.repository.ProdottoRepository;
 import java.time.Clock;
@@ -22,11 +25,14 @@ public class OrdineService {
 
     private final OrdineRepository ordini;
     private final ProdottoRepository prodotti;
+    private final MovimentoRepository movimenti;
     private final Clock clock;
 
-    public OrdineService(OrdineRepository ordini, ProdottoRepository prodotti, Clock clock) {
+    public OrdineService(OrdineRepository ordini, ProdottoRepository prodotti,
+                         MovimentoRepository movimenti, Clock clock) {
         this.ordini = ordini;
         this.prodotti = prodotti;
+        this.movimenti = movimenti;
         this.clock = clock;
     }
 
@@ -41,7 +47,12 @@ public class OrdineService {
                             "Prodotto " + riga.codiceProdotto() + " non trovato"));
             ordine.aggiungiRiga(prodotto, riga.quantita());
         }
-        return ordini.save(ordine);
+        Ordine salvato = ordini.save(ordine);
+        // R5: uno SCARICO per riga, con il numero d'ordine come riferimento
+        for (RigaOrdine riga : salvato.getRighe()) {
+            movimenti.save(MovimentoMagazzino.scarico(riga, salvato.getId(), LocalDateTime.now(clock)));
+        }
+        return salvato;
     }
 
     @Transactional(readOnly = true)
@@ -64,6 +75,10 @@ public class OrdineService {
     public Ordine annulla(Long id) {
         Ordine ordine = trova(id);
         ordine.annulla();
+        // R5: i pezzi rientrati diventano un RESO per riga
+        for (RigaOrdine riga : ordine.getRighe()) {
+            movimenti.save(MovimentoMagazzino.reso(riga, ordine.getId(), LocalDateTime.now(clock)));
+        }
         return ordine;
     }
 }

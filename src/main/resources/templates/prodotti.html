@@ -13,6 +13,7 @@
             <th class="num">Prezzo</th>
             <th class="num">Disponibili</th>
             <th class="num">Scorta minima</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -23,6 +24,7 @@
             <td class="num" th:text="${#numbers.formatDecimal(p.prezzo, 1, 'POINT', 2, 'COMMA')} + ' €'">6,90 €</td>
             <td class="num" th:text="${p.disponibili}">240</td>
             <td class="num" th:text="${p.scortaMinima}">50</td>
+            <td><a th:href="@{/prodotti/{codice}/riassortimento(codice=${p.codice})}">Riassortisci</a></td>
         </tr>
         </tbody>
     </table>

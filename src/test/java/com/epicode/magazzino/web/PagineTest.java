@@ -49,6 +49,23 @@ class PagineTest {
     }
 
     @Test
+    void riassortimentoNonValidoMostraLErrore() throws Exception {
+        mvc.perform(post("/prodotti/GUA-L/riassortimento").param("quantita", "0"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("La quantità da riassortire va da 1 a 1000")));
+    }
+
+    @Test
+    void riassortimentoValidoPortaAiMovimenti() throws Exception {
+        mvc.perform(post("/prodotti/MET-5/riassortimento").param("quantita", "10").param("nota", "Arrivo"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("/movimenti"));
+        mvc.perform(get("/movimenti"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Arrivo")));
+    }
+
+    @Test
     void ordineInesistente() throws Exception {
         mvc.perform(get("/ordini/9999"))
                 .andExpect(status().isNotFound());
