@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:replace="~{fragments :: head('Non trovato')}"></head>
+<body>
+<header th:replace="~{fragments :: menu}"></header>
+<main>
+    <h1>Non trovato</h1>
+    <p class="avviso errore" th:text="${errore}">Ordine 99 non trovato</p>
+    <p><a th:href="@{/prodotti}">Torna ai prodotti</a></p>
+</main>
+</body>
+</html>

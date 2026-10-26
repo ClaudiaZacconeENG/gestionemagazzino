@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:replace="~{fragments :: head('Ordine')}"></head>
+<body>
+<header th:replace="~{fragments :: menu}"></header>
+<main>
+    <h1>Ordine <span th:text="${ordine.id}">1</span>
+        <span class="stato" th:classappend="${#strings.toLowerCase(ordine.stato)}" th:text="${ordine.stato}">CONFERMATO</span>
+    </h1>
+    <p>Cliente: <strong th:text="${ordine.cliente}">Rossi srl</strong>
+        · creato il <span th:text="${#temporals.format(ordine.creatoIl, 'dd/MM/yyyy HH:mm')}">21/10/2026</span></p>
+    <div th:replace="~{fragments :: avvisi}"></div>
+    <table>
+        <thead>
+        <tr>
+            <th>Prodotto</th>
+            <th class="num">Quantità</th>
+            <th class="num">Prezzo</th>
+            <th class="num">Subtotale</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="r : ${ordine.righe}">
+            <td th:text="${r.prodotto.nome}">Viti</td>
+            <td class="num" th:text="${r.quantita}">10</td>
+            <td class="num" th:text="${#numbers.formatDecimal(r.prezzoUnitario, 1, 'POINT', 2, 'COMMA')} + ' €'">6,90 €</td>
+            <td class="num" th:text="${#numbers.formatDecimal(r.subtotale(), 1, 'POINT', 2, 'COMMA')} + ' €'">69,00 €</td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <th colspan="3">Totale</th>
+            <th class="num" th:text="${#numbers.formatDecimal(ordine.totale(), 1, 'POINT', 2, 'COMMA')} + ' €'">69,00 €</th>
+        </tr>
+        </tfoot>
+    </table>
+    <div class="azioni" th:if="${ordine.stato.name() == 'CONFERMATO'}">
+        <form th:action="@{/ordini/{id}/spedisci(id=${ordine.id})}" method="post">
+            <button type="submit" class="primario">Spedisci</button>
+        </form>
+        <form th:action="@{/ordini/{id}/annulla(id=${ordine.id})}" method="post">
+            <button type="submit">Annulla ordine</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

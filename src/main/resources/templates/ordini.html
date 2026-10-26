@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:replace="~{fragments :: head('Ordini')}"></head>
+<body>
+<header th:replace="~{fragments :: menu}"></header>
+<main>
+    <h1>Ordini</h1>
+    <p th:if="${#lists.isEmpty(ordini)}">Ancora nessun ordine. <a th:href="@{/ordini/nuovo}">Creane uno</a>.</p>
+    <table th:unless="${#lists.isEmpty(ordini)}">
+        <thead>
+        <tr>
+            <th>N.</th>
+            <th>Cliente</th>
+            <th>Data</th>
+            <th>Stato</th>
+            <th class="num">Totale</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="o : ${ordini}">
+            <td><a th:href="@{/ordini/{id}(id=${o.id})}" th:text="${o.id}">1</a></td>
+            <td th:text="${o.cliente}">Rossi srl</td>
+            <td th:text="${#temporals.format(o.creatoIl, 'dd/MM/yyyy HH:mm')}">21/10/2026 10:00</td>
+            <td><span class="stato" th:classappend="${#strings.toLowerCase(o.stato)}" th:text="${o.stato}">CONFERMATO</span></td>
+            <td class="num" th:text="${#numbers.formatDecimal(o.totale(), 1, 'POINT', 2, 'COMMA')} + ' €'">0,00 €</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

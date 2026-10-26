@@ -1,0 +1,21 @@
+/* Stile minimo: il corso non riguarda il CSS. */
+body { margin: 0; font-family: system-ui, Arial, sans-serif; color: #1a1d3a; background: #fafaf7; }
+header { display: flex; justify-content: space-between; align-items: center; padding: 14px 32px; background: #1a1d3a; color: #fff; }
+header .logo { font-weight: 700; }
+nav a { color: #fff; margin-left: 18px; text-decoration: none; }
+main { max-width: 960px; margin: 24px auto; padding: 0 24px; }
+table { width: 100%; border-collapse: collapse; background: #fff; margin: 16px 0; }
+th, td { padding: 9px 12px; border-bottom: 1px solid #e4e4ec; text-align: left; }
+.num { text-align: right; }
+tr.esaurito td { color: #9a9db5; }
+.stato { font-size: 12px; padding: 3px 8px; border-radius: 10px; background: #eeebff; color: #6c5ce7; vertical-align: middle; }
+.stato.spedito { background: #e3f6ec; color: #1e9e6a; }
+.stato.annullato { background: #f1f1f5; color: #9a9db5; }
+.avviso { padding: 10px 14px; border-radius: 8px; }
+.avviso.errore { background: #ffe8f3; color: #a3005d; }
+.avviso.ok { background: #e3f6ec; color: #136b47; }
+label { display: block; margin: 12px 0; }
+input, select { padding: 6px 8px; font-size: 15px; }
+button { padding: 8px 16px; font-size: 15px; border: 1px solid #6c5ce7; border-radius: 8px; background: #fff; color: #6c5ce7; cursor: pointer; }
+.primario, button.primario { background: #d6007a; border-color: #d6007a; color: #fff; padding: 6px 12px; border-radius: 8px; }
+.azioni { display: flex; gap: 12px; }
