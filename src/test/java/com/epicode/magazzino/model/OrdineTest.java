@@ -24,9 +24,10 @@ class OrdineTest {
     @Test
     void ilTotaleESommaDeiSubtotali() {
         Ordine ordine = new Ordine("Rossi", ADESSO);
-        ordine.aggiungiRiga(viti, 3);      // 20,70
+        ordine.aggiungiRiga(viti, 10);     // 65,55 dopo lo sconto del 5%
         ordine.aggiungiRiga(trapano, 2);   // 178,00
-        assertEquals(new BigDecimal("198.70"), ordine.totale());
+        assertEquals(new BigDecimal("243.55"), ordine.totaleMerce());
+        assertEquals(new BigDecimal("243.55"), ordine.totaleDaPagare());
     }
 
     @Test
@@ -43,6 +44,46 @@ class OrdineTest {
         ordine.aggiungiRiga(viti, 2);
         assertEquals(1, ordine.getRighe().size());
         assertEquals(5, ordine.getRighe().get(0).getQuantita());
+    }
+
+    @Test
+    void loScontoDipendeDalleSoglieDiQuantita() {
+        assertEquals(0, rigaConQuantita(9).getPercentualeSconto());
+        assertEquals(5, rigaConQuantita(10).getPercentualeSconto());
+        assertEquals(5, rigaConQuantita(49).getPercentualeSconto());
+        assertEquals(10, rigaConQuantita(50).getPercentualeSconto());
+    }
+
+    @Test
+    void riaggiungereLoStessoProdottoApplicaLoScontoSullaQuantitaAggregata() {
+        Ordine ordine = new Ordine("Rossi", ADESSO);
+        ordine.aggiungiRiga(viti, 5);
+        ordine.aggiungiRiga(viti, 5);
+
+        assertEquals(1, ordine.getRighe().size());
+        assertEquals(10, ordine.getRighe().get(0).getQuantita());
+        assertEquals(5, ordine.getRighe().get(0).getPercentualeSconto());
+        assertEquals(new BigDecimal("65.55"), ordine.getRighe().get(0).subtotale());
+    }
+
+    @Test
+    void subtotaleScontatoArrotondaAlCentesimoConHalfUp() {
+        Prodotto economico = new Prodotto("ECO", "Economico", new BigDecimal("0.05"), 10, 0);
+        Ordine ordine = new Ordine("Rossi", ADESSO);
+        ordine.aggiungiRiga(economico, 10);
+
+        assertEquals(new BigDecimal("0.48"), ordine.getRighe().get(0).subtotale());
+    }
+
+    @Test
+    void spedizioneGratuitaDa150EuroDiMerceScontata() {
+        Ordine sottoSoglia = ordineConProdottoDa("149.99");
+        Ordine sullaSoglia = ordineConProdottoDa("150.00");
+
+        assertEquals(new BigDecimal("9.90"), sottoSoglia.speseSpedizione());
+        assertEquals(new BigDecimal("159.89"), sottoSoglia.totaleDaPagare());
+        assertEquals(new BigDecimal("0.00"), sullaSoglia.speseSpedizione());
+        assertEquals(new BigDecimal("150.00"), sullaSoglia.totaleDaPagare());
     }
 
     @Test
@@ -90,5 +131,19 @@ class OrdineTest {
     @Test
     void clienteObbligatorio() {
         assertThrows(RichiestaNonValidaException.class, () -> new Ordine("  ", ADESSO));
+    }
+
+    private RigaOrdine rigaConQuantita(int quantita) {
+        Prodotto prodotto = new Prodotto("Q" + quantita, "Prodotto test", new BigDecimal("1.00"), 100, 0);
+        Ordine ordine = new Ordine("Rossi", ADESSO);
+        ordine.aggiungiRiga(prodotto, quantita);
+        return ordine.getRighe().get(0);
+    }
+
+    private Ordine ordineConProdottoDa(String prezzo) {
+        Prodotto prodotto = new Prodotto("P" + prezzo, "Prodotto test", new BigDecimal(prezzo), 1, 0);
+        Ordine ordine = new Ordine("Rossi", ADESSO);
+        ordine.aggiungiRiga(prodotto, 1);
+        return ordine;
     }
 }

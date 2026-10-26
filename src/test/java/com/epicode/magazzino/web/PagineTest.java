@@ -39,6 +39,30 @@ class PagineTest {
     }
 
     @Test
+    void dettaglioEElencoMostranoScontoESpedizione() throws Exception {
+        String destinazione = mvc.perform(post("/ordini")
+                        .param("cliente", "Ferramenta Bianchi")
+                        .param("righe[0].codice", "GUA-L")
+                        .param("righe[0].quantita", "10"))
+                .andExpect(status().is3xxRedirection())
+                .andReturn()
+                .getResponse()
+                .getRedirectedUrl();
+
+        mvc.perform(get(destinazione))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("5%")))
+                .andExpect(content().string(containsString("30,40 €")))
+                .andExpect(content().string(containsString("9,90 €")))
+                .andExpect(content().string(containsString("40,30 €")));
+
+        mvc.perform(get("/ordini"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Totale da pagare")))
+                .andExpect(content().string(containsString("40,30 €")));
+    }
+
+    @Test
     void ilFormMostraLErroreSeLaScortaNonBasta() throws Exception {
         mvc.perform(post("/ordini")
                         .param("cliente", "Ferramenta Bianchi")

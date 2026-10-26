@@ -43,10 +43,21 @@ public class RigaOrdine {
         quantita += altri;
     }
 
-    /** Prezzo unitario per quantità, arrotondato al centesimo. */
+    /** Subtotale scontato della riga, arrotondato al centesimo. */
     public BigDecimal subtotale() {
         return prezzoUnitario.multiply(BigDecimal.valueOf(quantita))
-                .setScale(2, RoundingMode.HALF_UP);
+                .multiply(BigDecimal.valueOf(100 - getPercentualeSconto()))
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+    }
+
+    public int getPercentualeSconto() {
+        if (quantita >= 50) {
+            return 10;
+        }
+        if (quantita >= 10) {
+            return 5;
+        }
+        return 0;
     }
 
     public Long getId() {
