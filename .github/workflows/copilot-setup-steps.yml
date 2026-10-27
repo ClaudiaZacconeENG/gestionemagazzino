@@ -25,5 +25,7 @@ jobs:
           distribution: temurin
           java-version: "25"
           cache: maven
+      - name: Rendi eseguibile Maven Wrapper
+        run: chmod +x ./mvnw
       - name: Scarica le dipendenze Maven
         run: ./mvnw -B -q dependency:go-offline
