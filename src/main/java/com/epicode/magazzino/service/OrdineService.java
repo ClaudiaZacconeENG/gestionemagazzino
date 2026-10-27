@@ -22,11 +22,14 @@ public class OrdineService {
 
     private final OrdineRepository ordini;
     private final ProdottoRepository prodotti;
+    private final MovimentiService movimenti;
     private final Clock clock;
 
-    public OrdineService(OrdineRepository ordini, ProdottoRepository prodotti, Clock clock) {
+    public OrdineService(OrdineRepository ordini, ProdottoRepository prodotti,
+                         MovimentiService movimenti, Clock clock) {
         this.ordini = ordini;
         this.prodotti = prodotti;
+        this.movimenti = movimenti;
         this.clock = clock;
     }
 
@@ -41,7 +44,9 @@ public class OrdineService {
                             "Prodotto " + riga.codiceProdotto() + " non trovato"));
             ordine.aggiungiRiga(prodotto, riga.quantita());
         }
-        return ordini.save(ordine);
+        Ordine salvato = ordini.save(ordine);
+        movimenti.registraScarichi(salvato);
+        return salvato;
     }
 
     @Transactional(readOnly = true)
@@ -64,6 +69,7 @@ public class OrdineService {
     public Ordine annulla(Long id) {
         Ordine ordine = trova(id);
         ordine.annulla();
+        movimenti.registraResi(ordine);
         return ordine;
     }
 }

@@ -12,9 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class CatalogoService {
 
     private final ProdottoRepository prodotti;
+    private final MovimentiService movimenti;
 
-    public CatalogoService(ProdottoRepository prodotti) {
+    public CatalogoService(ProdottoRepository prodotti, MovimentiService movimenti) {
         this.prodotti = prodotti;
+        this.movimenti = movimenti;
     }
 
     @Transactional(readOnly = true)
@@ -29,7 +31,12 @@ public class CatalogoService {
     }
 
     public Prodotto riassortisci(String codice, int quantita) {
+        return riassortisci(codice, quantita, null);
+    }
+
+    public Prodotto riassortisci(String codice, int quantita, String nota) {
         Prodotto prodotto = trova(codice);
+        movimenti.registraCarico(prodotto, quantita, nota);
         prodotto.riassortisci(quantita);
         return prodotto;
     }
