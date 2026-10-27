@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:replace="~{fragments :: head('Riassortimento')}"></head>
+<body>
+<header th:replace="~{fragments :: menu}"></header>
+<main>
+    <h1>Riassortisci <span th:text="${prodotto.nome}">Prodotto</span></h1>
+    <div th:replace="~{fragments :: avvisi}"></div>
+    <form th:action="@{/prodotti/{codice}/riassortimento(codice=${prodotto.codice})}"
+          th:object="${form}" method="post">
+        <label>Pezzi arrivati
+            <input type="number" th:field="*{pezzi}" min="1" max="1000" step="1" required>
+        </label>
+        <label>Nota (facoltativa)
+            <input type="text" th:field="*{nota}" maxlength="200">
+        </label>
+        <button type="submit" class="primario">Registra riassortimento</button>
+    </form>
+</main>
+</body>
+</html>

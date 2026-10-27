@@ -5,12 +5,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.epicode.magazzino.model.Ordine;
+import com.epicode.magazzino.model.Movimento;
 import com.epicode.magazzino.model.Prodotto;
 import com.epicode.magazzino.model.RichiestaNonValidaException;
 import com.epicode.magazzino.model.RisorsaNonTrovataException;
 import com.epicode.magazzino.model.ScortaInsufficienteException;
+import com.epicode.magazzino.model.TipoMovimento;
+import com.epicode.magazzino.repository.MovimentoRepository;
 import com.epicode.magazzino.repository.ProdottoRepository;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +32,12 @@ class OrdineServiceTest {
 
     @Autowired
     private ProdottoRepository prodotti;
+
+    @Autowired
+    private MovimentoRepository movimenti;
+
+    @Autowired
+    private MovimentiService servizioMovimenti;
 
     @BeforeEach
     void prodottiDiTest() {
@@ -63,5 +73,46 @@ class OrdineServiceTest {
     void ordineSenzaRighe() {
         NuovoOrdine richiesta = new NuovoOrdine("Bianchi", List.of());
         assertThrows(RichiestaNonValidaException.class, () -> ordini.crea(richiesta));
+    }
+
+    @Test
+    void creaScarichiEAnnullaConResiPerOgniRiga() {
+        Ordine ordine = ordini.crea(new NuovoOrdine("Bianchi", List.of(
+                new NuovoOrdine.Riga("T-VITI", 2),
+                new NuovoOrdine.Riga("T-MART", 1))));
+
+        List<Movimento> scarichi = movimenti.findAllByOrderByDataOraDescIdDesc().stream()
+                .filter(m -> ordine.getId().equals(m.getNumeroOrdine()))
+                .toList();
+        assertEquals(2, scarichi.size());
+        assertEquals(List.of(TipoMovimento.SCARICO, TipoMovimento.SCARICO),
+                scarichi.stream().map(Movimento::getTipo).toList());
+        assertEquals(ordine.getId(), scarichi.getFirst().getNumeroOrdine());
+        assertNotNull(scarichi.getFirst().getDataOra());
+
+        ordini.annulla(ordine.getId());
+
+        List<Movimento> registrati = movimenti.findAllByOrderByDataOraDescIdDesc().stream()
+                .filter(m -> ordine.getId().equals(m.getNumeroOrdine()))
+                .toList();
+        assertEquals(4, registrati.size());
+        assertEquals(2, registrati.stream().filter(m -> m.getTipo() == TipoMovimento.RESO).count());
+        assertEquals(20, prodotti.findByCodice("T-VITI").orElseThrow().getDisponibili());
+        assertEquals(3, prodotti.findByCodice("T-MART").orElseThrow().getDisponibili());
+    }
+
+    @Test
+    void elencoMovimentiOrdinaDalPiuRecente() {
+        Prodotto prodotto = prodotti.findByCodice("T-VITI").orElseThrow();
+        LocalDateTime dataVecchia = LocalDateTime.of(2026, 1, 1, 10, 0);
+        Movimento vecchio = movimenti.save(Movimento.carico(dataVecchia, prodotto, 1, null));
+        Movimento recente = movimenti.save(Movimento.carico(dataVecchia.plusDays(1), prodotto, 1, null));
+
+        List<Long> idInOrdine = servizioMovimenti.elenco().stream()
+                .filter(m -> "T-VITI".equals(m.getProdotto().getCodice()))
+                .map(Movimento::getId)
+                .toList();
+
+        assertEquals(List.of(recente.getId(), vecchio.getId()), idInOrdine);
     }
 }
