@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 import java.math.BigDecimal;
 
 /** Un articolo del magazzino con la sua giacenza. */
@@ -27,6 +28,9 @@ public class Prodotto {
     private int disponibili;
 
     private int scortaMinima;
+
+    @Version
+    private long versione;
 
     protected Prodotto() {
         // per JPA
