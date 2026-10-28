@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:replace="~{fragments :: head('Riassortimento')}"></head>
+<body>
+<header th:replace="~{fragments :: menu}"></header>
+<main>
+    <h1>Riassortimento: <span th:text="${prodotto.nome}">Viti</span></h1>
+    <p>Disponibili oggi: <strong th:text="${prodotto.disponibili}">240</strong></p>
+    <div th:replace="~{fragments :: avvisi}"></div>
+    <form th:action="@{/prodotti/{codice}/riassortimento(codice=${prodotto.codice})}"
+          th:object="${form}" method="post">
+        <label>Pezzi arrivati (da 1 a 1000)
+            <input type="number" th:field="*{quantita}">
+        </label>
+        <label>Nota (facoltativa, massimo 200 caratteri)
+            <input type="text" th:field="*{nota}" size="60">
+        </label>
+        <button type="submit" class="primario">Registra</button>
+    </form>
+</main>
+</body>
+</html>
