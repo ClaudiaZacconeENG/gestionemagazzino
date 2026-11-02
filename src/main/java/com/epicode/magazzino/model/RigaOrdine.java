@@ -51,6 +51,10 @@ public class RigaOrdine {
     }
 
     public int getPercentualeSconto() {
+        return percentualeSconto();
+    }
+
+    public int percentualeSconto() {
         if (quantita >= 50) {
             return 10;
         }
