@@ -1,9 +1,12 @@
 package com.epicode.magazzino.service;
 
+import com.epicode.magazzino.model.MovimentoMagazzino;
 import com.epicode.magazzino.model.Ordine;
 import com.epicode.magazzino.model.Prodotto;
+import com.epicode.magazzino.model.RigaOrdine;
 import com.epicode.magazzino.model.RichiestaNonValidaException;
 import com.epicode.magazzino.model.RisorsaNonTrovataException;
+import com.epicode.magazzino.repository.MovimentoRepository;
 import com.epicode.magazzino.repository.OrdineRepository;
 import com.epicode.magazzino.repository.ProdottoRepository;
 import java.time.Clock;
@@ -22,11 +25,14 @@ public class OrdineService {
 
     private final OrdineRepository ordini;
     private final ProdottoRepository prodotti;
+    private final MovimentoRepository movimenti;
     private final Clock clock;
 
-    public OrdineService(OrdineRepository ordini, ProdottoRepository prodotti, Clock clock) {
+    public OrdineService(OrdineRepository ordini, ProdottoRepository prodotti,
+                         MovimentoRepository movimenti, Clock clock) {
         this.ordini = ordini;
         this.prodotti = prodotti;
+        this.movimenti = movimenti;
         this.clock = clock;
     }
 
@@ -41,7 +47,12 @@ public class OrdineService {
                             "Prodotto " + riga.codiceProdotto() + " non trovato"));
             ordine.aggiungiRiga(prodotto, riga.quantita());
         }
-        return ordini.save(ordine);
+        Ordine salvato = ordini.save(ordine);
+        LocalDateTime quando = LocalDateTime.now(clock);
+        movimenti.saveAll(salvato.getRighe().stream()
+                .map(riga -> MovimentoMagazzino.scarico(riga, salvato.getId(), quando))
+                .toList());
+        return salvato;
     }
 
     @Transactional(readOnly = true)
@@ -63,7 +74,12 @@ public class OrdineService {
 
     public Ordine annulla(Long id) {
         Ordine ordine = trova(id);
+        List<RigaOrdine> righe = List.copyOf(ordine.getRighe());
         ordine.annulla();
+        LocalDateTime quando = LocalDateTime.now(clock);
+        movimenti.saveAll(righe.stream()
+                .map(riga -> MovimentoMagazzino.reso(riga, ordine.getId(), quando))
+                .toList());
         return ordine;
     }
 }

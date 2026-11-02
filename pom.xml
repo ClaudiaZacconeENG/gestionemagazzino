@@ -28,6 +28,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
+<!-- Aggiunta dal fornitore del modulo report aggiunta Claudia-->
+		<dependency>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-text</artifactId>
+		<version>1.9</version>
+		</dependency>	
+
 		<!-- Dati: JPA su database H2 in memoria (riparte vuoto a ogni avvio) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

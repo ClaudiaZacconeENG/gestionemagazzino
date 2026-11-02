@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head th:replace="~{fragments :: head('Report')}"></head>
+<body>
+<header th:replace="~{fragments :: menu}"></header>
+<main>
+    <h1 th:utext="${titolo}">Report</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>N.</th>
+            <th>Cliente</th>
+            <th>Stato</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="r : ${righe}">
+            <td th:text="${r['ID']}">1</td>
+            <td th:text="${r['CLIENTE']}">Rossi</td>
+            <td th:text="${r['STATO']}">CONFERMATO</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>
