@@ -3,7 +3,11 @@ package com.epicode.magazzino.web;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.apache.commons.text.StringSubstitutor;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,14 +24,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/report")
 public class ReportController {
 
+    private static final Pattern SEGNAPOSTO_DATA = Pattern.compile("\\$\\{date:([^}]+)}");
+
     // Credenziali del server FTP del fornitore, per l'invio notturno dei report
     private static final String FTP_UTENTE = "magazzino";
     private static final String FTP_PASSWORD = "Fornitore2026!";
 
     private final JdbcTemplate jdbc;
+    private final Clock clock;
 
-    public ReportController(JdbcTemplate jdbc) {
+    public ReportController(JdbcTemplate jdbc, Clock clock) {
         this.jdbc = jdbc;
+        this.clock = clock;
     }
 
     /** Ordini di un cliente: /report/ordini?cliente=Rossi */
@@ -50,7 +58,15 @@ public class ReportController {
     @GetMapping("/intestazione")
     @ResponseBody
     public String intestazione(@RequestParam String modello) {
-        return StringSubstitutor.createInterpolator().replace(modello);
+        Matcher matcher = SEGNAPOSTO_DATA.matcher(modello);
+        StringBuilder risultato = new StringBuilder();
+        while (matcher.find()) {
+            String data = LocalDate.now(clock)
+                    .format(DateTimeFormatter.ofPattern(matcher.group(1)));
+            matcher.appendReplacement(risultato, Matcher.quoteReplacement(data));
+        }
+        matcher.appendTail(risultato);
+        return risultato.toString();
     }
 
     String credenzialiFtp() {

@@ -1,8 +1,13 @@
 package com.epicode.magazzino.service;
 
+import com.epicode.magazzino.model.MovimentoMagazzino;
 import com.epicode.magazzino.model.Prodotto;
+import com.epicode.magazzino.model.Riassortimento;
 import com.epicode.magazzino.model.RisorsaNonTrovataException;
+import com.epicode.magazzino.repository.MovimentoRepository;
 import com.epicode.magazzino.repository.ProdottoRepository;
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,9 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class CatalogoService {
 
     private final ProdottoRepository prodotti;
+    private final MovimentoRepository movimenti;
+    private final Clock clock;
 
-    public CatalogoService(ProdottoRepository prodotti) {
+    public CatalogoService(ProdottoRepository prodotti, MovimentoRepository movimenti, Clock clock) {
         this.prodotti = prodotti;
+        this.movimenti = movimenti;
+        this.clock = clock;
     }
 
     @Transactional(readOnly = true)
@@ -29,8 +38,18 @@ public class CatalogoService {
     }
 
     public Prodotto riassortisci(String codice, int quantita) {
+        return riassortisci(codice, new Riassortimento(quantita, null));
+    }
+
+    public Prodotto riassortisci(String codice, Riassortimento richiesta) {
         Prodotto prodotto = trova(codice);
-        prodotto.riassortisci(quantita);
+        prodotto.riassortisci(richiesta.quantita());
+        movimenti.save(MovimentoMagazzino.carico(prodotto, richiesta, LocalDateTime.now(clock)));
         return prodotto;
+    }
+
+    @Transactional(readOnly = true)
+    public List<MovimentoMagazzino> movimenti() {
+        return movimenti.findAllByOrderByCreatoIlDescIdDesc();
     }
 }
