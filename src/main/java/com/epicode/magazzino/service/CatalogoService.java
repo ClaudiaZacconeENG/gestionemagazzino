@@ -3,12 +3,16 @@ package com.epicode.magazzino.service;
 import com.epicode.magazzino.model.MovimentoMagazzino;
 import com.epicode.magazzino.model.Prodotto;
 import com.epicode.magazzino.model.Riassortimento;
+import com.epicode.magazzino.model.RicercaProdotti;
 import com.epicode.magazzino.model.RisorsaNonTrovataException;
 import com.epicode.magazzino.repository.MovimentoRepository;
 import com.epicode.magazzino.repository.ProdottoRepository;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +39,18 @@ public class CatalogoService {
     public Prodotto trova(String codice) {
         return prodotti.findByCodice(codice)
                 .orElseThrow(() -> new RisorsaNonTrovataException("Prodotto " + codice + " non trovato"));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Prodotto> cerca(String testo) {
+        RicercaProdotti ricerca = new RicercaProdotti(testo);
+        return prodotti.findByCodiceContainingIgnoreCaseOrNomeContainingIgnoreCase(
+                ricerca.testo(), ricerca.testo(), PageRequest.of(0, 20, Sort.by("nome", "codice")));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Prodotto> daRiassortire() {
+        return prodotti.trovaDaRiassortire();
     }
 
     public Prodotto riassortisci(String codice, int quantita) {
