@@ -29,3 +29,5 @@ jobs:
         run: chmod +x ./mvnw
       - name: Scarica le dipendenze Maven
         run: ./mvnw -B -q dependency:go-offline
+      - name: Costruisci il jar per il server MCP
+        run: ./mvnw -B -q -DskipTests package
